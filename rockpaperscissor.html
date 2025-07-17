@@ -4,69 +4,127 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Rock Paper Scissors</title>
+  <style>
+    #log {
+      margin-top: 20px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      background: #f9f9f9;
+      height: 200px;
+      overflow-y: auto;
+      font-family: monospace;
+      white-space: pre-line;
+    }
+
+    #score {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+
+    button {
+      margin: 5px;
+      padding: 10px 20px;
+    }
+  </style>
 </head>
 <body>
+  <h1>Rock Paper Scissors</h1>
+  <div>
+    <button id="rock">Rock</button>
+    <button id="paper">Paper</button>
+    <button id="scissors">Scissors</button>
+    <button id="reset">Reset Game</button>
+
+  </div>
+
+  <div id="score">Score: You 0 - 0 Computer</div>
+  <div id="log"></div> 
+
   <script>
     let human_score = 0;
     let comp_score = 0;
+    let game_over = false;
+
+    const logDiv = document.getElementById("log");
+    const scoreDiv = document.getElementById('score')
+
+    document.getElementById("reset").addEventListener("click", () => {
+      human_score = 0;
+      comp_score = 0;
+      game_over = false;
+      scoreDiv.textContent = `Score: You 0 - 0 Computer`;
+      logDiv.innerHTML = "";
+    });
+
+    function logMessage(message) {
+      const line = document.createElement("div");
+      line.textContent = message;
+      logDiv.appendChild(line);
+      logDiv.scrollTop = logDiv.scrollHeight;
+    }
+
+    function updateScore() {
+      scoreDiv.textContent = `Score: You ${human_score} - ${comp_score} Computer`;
+    }
+
 
     function getComputerChoice() {
       const choices = ['rock', 'paper', 'scissors'];
       return choices[Math.floor(Math.random() * choices.length)];
     }
 
-    function getHumanChoice() {
-      while (true) {
-        let choice = prompt("Rock, paper, or scissors?");
-        if (!choice) continue;
-
-        choice = choice.toLowerCase();
-        if (['rock', 'paper', 'scissors'].includes(choice)) {
-          return choice;
-        }
-
-        alert("Invalid input. Please enter rock, paper, or scissors.");
-      }
-    }
-
     function playRound(humanChoice, compChoice) {
+      if (game_over) return;
+
+      logMessage(`You chose: ${humanChoice}`);
+      logMessage(`Computer chose: ${compChoice}`);
+
       if (humanChoice === compChoice) {
-        console.log(`It's a tie! You both chose ${humanChoice}.`);
+        logMessage(`It's a tie! You both chose ${humanChoice}.\n`);
       } else if (
         (humanChoice === "rock" && compChoice === "scissors") ||
         (humanChoice === "paper" && compChoice === "rock") ||
         (humanChoice === "scissors" && compChoice === "paper")
       ) {
-        console.log(`You win! ${humanChoice} beats ${compChoice}.`);
         human_score++;
+        logMessage(`You win! ${humanChoice} beats ${compChoice}.\n`);
       } else {
-        console.log(`You lose! ${compChoice} beats ${humanChoice}.`);
         comp_score++;
+        logMessage(`You lose! ${compChoice} beats ${humanChoice}.\n`);
+      }
+
+      logMessage(`Score: You ${human_score} - ${comp_score} Computer`);
+
+      updateScore();
+      checkWinner();
+    }
+
+    function checkWinner() {
+      if (human_score === 5 || comp_score === 5){
+        game_over = true;
+        if (human_score > comp_score) {
+          logMessage("🎉 You win the game!");
+        } else {
+          logMessage("💻 Computer wins the game!");
+        }
+        logMessage("Click 'Reset Game' to play again.");
       }
     }
 
-    function playGame() {
-      for (let i = 0; i < 5; i++) {
-        console.log(`\n--- Round ${i + 1} ---`);
-        const human = getHumanChoice();
-        const computer = getComputerChoice();
-        playRound(human, computer);
-        console.log(`Score: Human ${human_score} | Computer ${comp_score}`);
-      }
+    // --- Add button event listeners
+    document.getElementById('rock').addEventListener('click', () => {
+      playRound('rock', getComputerChoice());
+    });
 
-      console.log("\nGame Over!");
-      console.log(`Final Score: Human ${human_score} - Computer ${comp_score}`);
+    document.getElementById('paper').addEventListener('click', () => {
+      playRound('paper', getComputerChoice());
+    });
 
-      if (human_score > comp_score) {
-        console.log("🎉 You win the game!");
-      } else if (comp_score > human_score) {
-        console.log("💻 Computer wins the game!");
-      } else {
-        console.log("🤝 It's a tie overall!");
-      }
-    }
+    document.getElementById('scissors').addEventListener('click', () => {
+      playRound('scissors', getComputerChoice());
+    });
 
-    playGame();
+    
   </script>
 </body>
 </html>
